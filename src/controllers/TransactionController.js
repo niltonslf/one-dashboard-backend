@@ -47,10 +47,12 @@ class TransactionController {
    * @param {*} req
    * @param {*} res
    */
-  async payTransaction(req, res) {
+  async togglePaymentStatus(req, res) {
     const { id } = req.params;
+    const { isPaid } = req.body;
+
     const { data } = await this.axios.put(`transactions/${id}`, {
-      paid: true
+      paid: isPaid
     });
 
     return res.status(200).json({

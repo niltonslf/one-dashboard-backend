@@ -8,7 +8,7 @@ routes.get("/transactions", (req, res) =>
 );
 
 routes.put("/transactions/:id/pay", (req, res) =>
-  TransactionController.payTransaction(req, res)
+  TransactionController.togglePaymentStatus(req, res)
 );
 
 module.exports = routes;
