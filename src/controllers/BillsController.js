@@ -72,7 +72,7 @@ class BillsController {
       description: transaction.description,
       type: type,
       price: price,
-      dayOfWeek: weekday[dateObj.getDay()],
+      weekday: weekday[dateObj.getDay()],
       date: dateObj.getTime(),
       paid
     };
