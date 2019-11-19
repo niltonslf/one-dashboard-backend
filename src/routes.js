@@ -1,10 +1,14 @@
 const express = require("express");
 const routes = express.Router();
 
-const BillsController = require("./controllers/BillsController")
+const TransactionController = require("./controllers/TransactionController");
 
-routes.get("/transactions", (req, res) => {
-    BillsController.fetchTransactions(req, res)
-});
+routes.get("/transactions", (req, res) =>
+  TransactionController.fetchTransactions(req, res)
+);
+
+routes.put("/transactions/:id/pay", (req, res) =>
+  TransactionController.togglePaymentStatus(req, res)
+);
 
 module.exports = routes;

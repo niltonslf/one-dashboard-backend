@@ -1,10 +1,11 @@
 const axios = require("axios");
 
-class BillsController {
+class TransactionController {
   constructor() {
-    this.key = process.env.ORGANIZZE_KEY;
     this.apiUrl = "https://api.organizze.com.br/rest/v2/";
+    this.key = process.env.ORGANIZZE_KEY;
     this.user = process.env.ORGANIZZE_USERMAIL;
+    this.username = process.env.ORGANIZZE_USERNAME;
 
     this.authorization = Buffer.from(`${this.user}:${this.key}`).toString(
       "base64"
@@ -15,7 +16,7 @@ class BillsController {
       headers: {
         "Access-Control-Allow-Origin": "*",
         Authorization: `Basic ${this.authorization}`,
-        "User-Agent": `${process.env.ORGANIZZE_USERNAME} (${this.user})`,
+        "User-Agent": `${this.username} (${this.user})`,
         "Content-Type": "application/json",
         Accept: " */*"
       }
@@ -29,11 +30,10 @@ class BillsController {
   async fetchTransactions(req, res) {
     const { data } = await this.axios.get("transactions");
 
-    // TESTING
+    // Parsea a resposta da api
     const transactions = data.map(transaction =>
-      this.handleTransaction(transaction)
+      this._handleTransaction(transaction)
     );
-    // END TESTING
 
     res.status(200).json({
       success: true,
@@ -42,8 +42,31 @@ class BillsController {
     });
   }
 
-  handleTransaction(transaction) {
-    const { amount_cents, paid, date } = transaction;
+  /**
+   * Atualiza o status de uma transação para pago
+   * @param {*} req
+   * @param {*} res
+   */
+  async togglePaymentStatus(req, res) {
+    const { id } = req.params;
+    const { isPaid } = req.body;
+
+    const { data } = await this.axios.put(`transactions/${id}`, {
+      paid: isPaid
+    });
+
+    return res.status(200).json({
+      success: true,
+      body: data
+    });
+  }
+
+  /**
+   * Extrai as principais informações da transação
+   * @param {Object} transaction
+   */
+  _handleTransaction(transaction) {
+    const { id, amount_cents, paid, date } = transaction;
 
     const type = `${amount_cents}`.includes("-") ? "expense" : "income";
 
@@ -69,6 +92,7 @@ class BillsController {
     };
 
     const transactionFmt = {
+      id,
       description: transaction.description,
       type: type,
       price: price,
@@ -80,4 +104,4 @@ class BillsController {
   }
 }
 
-module.exports = new BillsController();
+module.exports = new TransactionController();
